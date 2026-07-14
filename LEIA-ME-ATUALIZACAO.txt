@@ -1,0 +1,6 @@
+VERSÃO COM CABEÇALHO PRETO E LARANJA
+
+Envie todos os arquivos desta pasta para o repositório pelo GitHub:
+Add file > Upload files > Commit changes.
+
+Depois aguarde o GitHub Pages atualizar e pressione Ctrl+F5.

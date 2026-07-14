@@ -68,3 +68,147 @@ html{scroll-behavior:smooth} body{margin:0;background:#d8d8d5;color:var(--ink);f
   .doc-title{padding:6mm 8mm}
   .doc-title h1{font-size:18px}
 }
+
+
+/* ==========================================================
+   CABEÇALHO PROFISSIONAL BRUTUSMAQ — preto + laranja
+   Referência: modelo comercial aprovado pelo usuário
+   ========================================================== */
+
+.doc-page{
+  border-right: 4px solid var(--orange);
+}
+
+.doc-header{
+  position: relative;
+  height: 39mm;
+  min-height: 39mm;
+  display: grid;
+  grid-template-columns: 41% 59%;
+  background: var(--black);
+  border-bottom: 0;
+  overflow: hidden;
+}
+
+/* faixa laranja contínua em toda a largura */
+.doc-header::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:4px;
+  background:var(--orange);
+  z-index:3;
+}
+
+.doc-brand{
+  position:relative;
+  background:transparent;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8mm 9mm 7mm 12mm;
+  border-right:1px solid rgba(255,255,255,.12);
+  min-width:0;
+}
+
+.doc-brand img{
+  width:21mm;
+  height:21mm;
+  flex:0 0 21mm;
+  object-fit:contain;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.08));
+}
+
+.doc-brand-name{
+  font-family:'Black Ops One',Impact,sans-serif;
+  font-size:22px;
+  line-height:1;
+  letter-spacing:1.2px;
+  color:#fff;
+  white-space:nowrap;
+}
+
+.doc-brand-tag{
+  color:var(--orange);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:1.2px;
+  margin-top:5px;
+  white-space:nowrap;
+}
+
+.doc-title{
+  position:relative;
+  padding:8mm 12mm 7mm 13mm;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:transparent;
+  color:#fff;
+  min-width:0;
+}
+
+.doc-title::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:10mm;
+  bottom:10mm;
+  width:3px;
+  border-radius:3px;
+  background:var(--orange);
+}
+
+.doc-title h1{
+  margin:0;
+  color:#fff;
+  font-size:25px;
+  line-height:1.05;
+  font-weight:900;
+  letter-spacing:.2px;
+}
+
+.doc-title p{
+  margin:7px 0 0;
+  color:var(--orange);
+  font-size:10px;
+  font-weight:700;
+}
+
+/* Mantém o cabeçalho equilibrado em telas menores */
+@media(max-width:1100px){
+  .doc-brand-name{font-size:19px}
+  .doc-title h1{font-size:22px}
+}
+
+/* Preserva cores na impressão/PDF */
+@media print{
+  .doc-page{
+    border-right:4px solid var(--orange)!important;
+  }
+  .doc-header,
+  .doc-brand,
+  .doc-title{
+    background:var(--black)!important;
+    color:#fff!important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .doc-header::after,
+  .doc-title::before{
+    background:var(--orange)!important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .doc-brand-name,
+  .doc-title h1{
+    color:#fff!important;
+  }
+  .doc-brand-tag,
+  .doc-title p{
+    color:var(--orange)!important;
+  }
+}
