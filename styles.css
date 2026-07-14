@@ -16,3 +16,55 @@ html{scroll-behavior:smooth} body{margin:0;background:#d8d8d5;color:var(--ink);f
 @media(max-width:850px){.workspace.split{display:block}.editor{position:static;max-height:none}.preview-area{overflow:auto}.app-actions{margin-left:0}.view-tabs{display:none}.doc-page{transform-origin:top left}}
 @page{size:A4;margin:0}
 @media print{body{background:#fff}.no-print{display:none!important}.workspace,.preview-area{display:block!important;padding:0!important}.doc-page{margin:0;box-shadow:none;page-break-after:always}.doc-page:last-child{page-break-after:auto}}
+
+/* Refinamento visual do cabeçalho BRUTUSMAQ */
+.doc-header{
+  height:30mm;
+  min-height:30mm;
+  grid-template-columns:38% 62%;
+  border-bottom:3px solid var(--orange);
+}
+.doc-brand{
+  padding:6mm 9mm;
+  gap:7px;
+  overflow:hidden;
+}
+.doc-brand img{
+  width:18mm;
+  height:18mm;
+  flex:0 0 18mm;
+  object-fit:contain;
+  object-position:center;
+  filter:none;
+}
+.doc-brand-name{
+  font-size:19px;
+  line-height:1;
+  letter-spacing:.8px;
+  white-space:nowrap;
+}
+.doc-brand-tag{
+  font-size:7.5px;
+  margin-top:4px;
+  white-space:nowrap;
+}
+.doc-title{
+  padding:7mm 11mm;
+}
+.doc-title h1{
+  font-size:21px;
+  line-height:1.08;
+}
+.doc-title p{
+  font-size:9.5px;
+  margin-top:5px;
+}
+@media(max-width:850px){
+  .doc-header{grid-template-columns:40% 60%}
+  .doc-brand{padding:5mm 7mm}
+  .doc-brand img{width:16mm;height:16mm;flex-basis:16mm}
+  .doc-brand-name{font-size:16px}
+  .doc-brand-tag{font-size:6.5px}
+  .doc-title{padding:6mm 8mm}
+  .doc-title h1{font-size:18px}
+}
