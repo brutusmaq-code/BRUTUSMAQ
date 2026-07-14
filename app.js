@@ -26,6 +26,15 @@ function renderPreview(){const t=totalData();const rows=state.items.length?state
 function formatDate(v){if(!v)return'';const [y,m,d]=v.split('-');return `${d}/${m}/${y}`}
 function collect(){const fields={};fieldIds.forEach(id=>fields[id]=val(id));return{version:2,fields,items:state.items,images:state.images,savedAt:new Date().toISOString()}}
 function apply(data){Object.entries(data.fields||{}).forEach(([id,v])=>{const e=$('#'+id);if(e)e.value=v});state.items=Array.isArray(data.items)?data.items:[];state.images=data.images||{};renderItems();renderPreview()}
+function crmImport(){
+ const match=location.hash.match(/(?:^#|&)crm=([^&]+)/);if(!match)return null;
+ try{
+  let encoded=match[1].replaceAll('-','+').replaceAll('_','/');while(encoded.length%4)encoded+='=';
+  const binary=atob(encoded),bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+  const data=JSON.parse(new TextDecoder().decode(bytes));
+  return data&&data.source==='BRUTUSMAQ_CRM'&&data.fields?data:null;
+ }catch(e){return null}
+}
 function autosave(){clearTimeout(autosave.t);autosave.t=setTimeout(()=>{try{localStorage.setItem(STORE,JSON.stringify(collect()))}catch(e){}},400)}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(collect()));toast('Orçamento salvo neste navegador.')}catch(e){toast('Não foi possível salvar. Reduza o tamanho das imagens.')}}
 function exportData(){const blob=new Blob([JSON.stringify(collect(),null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`orcamento-${val('quoteNumber')||'brutusmaq'}.json`;a.click();URL.revokeObjectURL(a.href)}
@@ -38,5 +47,5 @@ $$('input[type=file][data-image]').forEach(inp=>inp.onchange=()=>{const f=inp.fi
 $('#addItemBtn').onclick=()=>addItem();$('#saveBtn').onclick=save;$('#newBtn').onclick=reset;$('#exportBtn').onclick=exportData;$('#pdfBtn').onclick=()=>{renderPreview();window.print()};
 $('#importInput').onchange=()=>{const f=$('#importInput').files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{apply(JSON.parse(r.result));save();toast('Dados importados.')}catch(e){toast('Arquivo inválido.')}};r.readAsText(f)};
 if(!val('quoteDate'))$('#quoteDate').value=new Date().toISOString().slice(0,10);
-try{const saved=JSON.parse(localStorage.getItem(STORE)||'null');if(saved)apply(saved);else{addItem({description:'Equipamento principal',qty:1,unit:0});addItem({description:'Acessório incluso',qty:1,unit:0})}}catch(e){addItem({description:'Equipamento principal',qty:1,unit:0})}
+try{const imported=crmImport(),saved=JSON.parse(localStorage.getItem(STORE)||'null');if(imported){apply(imported);localStorage.setItem(STORE,JSON.stringify(collect()));setTimeout(()=>toast('Dados do CRM carregados no orçamento.'),250)}else if(saved)apply(saved);else{addItem({description:'Equipamento principal',qty:1,unit:0});addItem({description:'Acessório incluso',qty:1,unit:0})}}catch(e){addItem({description:'Equipamento principal',qty:1,unit:0})}
 renderPreview();
