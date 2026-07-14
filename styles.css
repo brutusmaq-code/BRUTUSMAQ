@@ -15,200 +15,30 @@ html{scroll-behavior:smooth} body{margin:0;background:#d8d8d5;color:var(--ink);f
 @media(max-width:1200px){.workspace.split{grid-template-columns:420px minmax(600px,1fr)}.appbar{align-items:flex-start;flex-wrap:wrap}.view-tabs{order:3}.editor{top:118px;max-height:calc(100vh - 118px)}}
 @media(max-width:850px){.workspace.split{display:block}.editor{position:static;max-height:none}.preview-area{overflow:auto}.app-actions{margin-left:0}.view-tabs{display:none}.doc-page{transform-origin:top left}}
 @page{size:A4;margin:0}
-@media print{body{background:#fff}.no-print{display:none!important}.workspace,.preview-area{display:block!important;padding:0!important}.doc-page{margin:0;box-shadow:none;page-break-after:always}.doc-page:last-child{page-break-after:auto}}
+/* Cabeçalho oficial BRUTUSMAQ - regra única para prévia e PDF */
+.doc-page{border-right:4px solid var(--orange)}
+.doc-header{position:relative;height:39mm;min-height:39mm;grid-template-columns:41% 59%;background:var(--black);border-bottom:0;overflow:hidden}
+.doc-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--orange);z-index:3}
+.doc-brand{position:relative;background:transparent;color:#fff;gap:10px;padding:8mm 9mm 7mm 12mm;border-right:1px solid rgba(255,255,255,.12);min-width:0;overflow:hidden}
+.doc-brand img{width:21mm;height:21mm;flex:0 0 21mm;object-fit:contain;object-position:center;filter:drop-shadow(0 1px 0 rgba(255,255,255,.08))}
+.doc-brand-name{font-family:'Black Ops One',Impact,sans-serif;font-size:22px;line-height:1;letter-spacing:1.2px;color:#fff;white-space:nowrap}
+.doc-brand-tag{color:var(--orange);font-size:8px;font-weight:900;letter-spacing:1.2px;margin-top:5px;white-space:nowrap}
+.doc-title{position:relative;padding:8mm 12mm 7mm 13mm;background:transparent;color:#fff;min-width:0}
+.doc-title::before{content:"";position:absolute;left:0;top:10mm;bottom:10mm;width:3px;border-radius:3px;background:var(--orange)}
+.doc-title h1{color:#fff;font-size:25px;line-height:1.05;font-weight:900;letter-spacing:.2px}
+.doc-title p{color:var(--orange);font-size:10px;font-weight:700}
+@media(max-width:1100px){.doc-brand-name{font-size:19px}.doc-title h1{font-size:22px}}
 
-/* Refinamento visual do cabeçalho BRUTUSMAQ */
-.doc-header{
-  height:30mm;
-  min-height:30mm;
-  grid-template-columns:38% 62%;
-  border-bottom:3px solid var(--orange);
-}
-.doc-brand{
-  padding:6mm 9mm;
-  gap:7px;
-  overflow:hidden;
-}
-.doc-brand img{
-  width:18mm;
-  height:18mm;
-  flex:0 0 18mm;
-  object-fit:contain;
-  object-position:center;
-  filter:none;
-}
-.doc-brand-name{
-  font-size:19px;
-  line-height:1;
-  letter-spacing:.8px;
-  white-space:nowrap;
-}
-.doc-brand-tag{
-  font-size:7.5px;
-  margin-top:4px;
-  white-space:nowrap;
-}
-.doc-title{
-  padding:7mm 11mm;
-}
-.doc-title h1{
-  font-size:21px;
-  line-height:1.08;
-}
-.doc-title p{
-  font-size:9.5px;
-  margin-top:5px;
-}
-@media(max-width:850px){
-  .doc-header{grid-template-columns:40% 60%}
-  .doc-brand{padding:5mm 7mm}
-  .doc-brand img{width:16mm;height:16mm;flex-basis:16mm}
-  .doc-brand-name{font-size:16px}
-  .doc-brand-tag{font-size:6.5px}
-  .doc-title{padding:6mm 8mm}
-  .doc-title h1{font-size:18px}
-}
-
-
-/* ==========================================================
-   CABEÇALHO PROFISSIONAL BRUTUSMAQ — preto + laranja
-   Referência: modelo comercial aprovado pelo usuário
-   ========================================================== */
-
-.doc-page{
-  border-right: 4px solid var(--orange);
-}
-
-.doc-header{
-  position: relative;
-  height: 39mm;
-  min-height: 39mm;
-  display: grid;
-  grid-template-columns: 41% 59%;
-  background: var(--black);
-  border-bottom: 0;
-  overflow: hidden;
-}
-
-/* faixa laranja contínua em toda a largura */
-.doc-header::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  height:4px;
-  background:var(--orange);
-  z-index:3;
-}
-
-.doc-brand{
-  position:relative;
-  background:transparent;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:8mm 9mm 7mm 12mm;
-  border-right:1px solid rgba(255,255,255,.12);
-  min-width:0;
-}
-
-.doc-brand img{
-  width:21mm;
-  height:21mm;
-  flex:0 0 21mm;
-  object-fit:contain;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.08));
-}
-
-.doc-brand-name{
-  font-family:'Black Ops One',Impact,sans-serif;
-  font-size:22px;
-  line-height:1;
-  letter-spacing:1.2px;
-  color:#fff;
-  white-space:nowrap;
-}
-
-.doc-brand-tag{
-  color:var(--orange);
-  font-size:8px;
-  font-weight:900;
-  letter-spacing:1.2px;
-  margin-top:5px;
-  white-space:nowrap;
-}
-
-.doc-title{
-  position:relative;
-  padding:8mm 12mm 7mm 13mm;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  background:transparent;
-  color:#fff;
-  min-width:0;
-}
-
-.doc-title::before{
-  content:"";
-  position:absolute;
-  left:0;
-  top:10mm;
-  bottom:10mm;
-  width:3px;
-  border-radius:3px;
-  background:var(--orange);
-}
-
-.doc-title h1{
-  margin:0;
-  color:#fff;
-  font-size:25px;
-  line-height:1.05;
-  font-weight:900;
-  letter-spacing:.2px;
-}
-
-.doc-title p{
-  margin:7px 0 0;
-  color:var(--orange);
-  font-size:10px;
-  font-weight:700;
-}
-
-/* Mantém o cabeçalho equilibrado em telas menores */
-@media(max-width:1100px){
-  .doc-brand-name{font-size:19px}
-  .doc-title h1{font-size:22px}
-}
-
-/* Preserva cores na impressão/PDF */
 @media print{
-  .doc-page{
-    border-right:4px solid var(--orange)!important;
-  }
-  .doc-header,
-  .doc-brand,
-  .doc-title{
-    background:var(--black)!important;
-    color:#fff!important;
-    -webkit-print-color-adjust:exact;
-    print-color-adjust:exact;
-  }
-  .doc-header::after,
-  .doc-title::before{
-    background:var(--orange)!important;
-    -webkit-print-color-adjust:exact;
-    print-color-adjust:exact;
-  }
-  .doc-brand-name,
-  .doc-title h1{
-    color:#fff!important;
-  }
-  .doc-brand-tag,
-  .doc-title p{
-    color:var(--orange)!important;
-  }
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{width:210mm;background:#fff}
+  body{margin:0}
+  .no-print{display:none!important}
+  .workspace,.preview-area,#documentPreview{display:block!important;width:210mm!important;margin:0!important;padding:0!important;overflow:visible!important}
+  .doc-page{width:210mm;min-height:297mm;margin:0!important;box-shadow:none;border-right:4px solid var(--orange)!important;break-after:page;page-break-after:always}
+  .doc-page:last-child{break-after:auto;page-break-after:auto}
+  .doc-header,.doc-brand,.doc-title{background:var(--black)!important;color:#fff!important}
+  .doc-header::after,.doc-title::before{background:var(--orange)!important}
+  .doc-brand-name,.doc-title h1{color:#fff!important}
+  .doc-brand-tag,.doc-title p{color:var(--orange)!important}
 }
