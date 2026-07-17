@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="pdf-layout-fixes.css?v=1">
 </head>
 <body>
   <header class="appbar no-print">
@@ -54,10 +55,22 @@
           <label>Solução proposta<textarea id="solution" rows="5">Equipamento industrial desenvolvido conforme a aplicação do cliente, com projeto robusto, fabricação nacional e suporte técnico BRUTUSMAQ.</textarea></label>
           <label>Escopo resumido<textarea id="scopeSummary" rows="3" placeholder="Equipamento principal e acessórios inclusos"></textarea></label>
           <div class="upload-grid">
-            <label class="upload-card"><span>Foto principal</span><input type="file" accept="image/*" data-image="heroImage"><small>Clique para substituir</small></label>
-            <label class="upload-card"><span>Foto técnica 1</span><input type="file" accept="image/*" data-image="gallery1"><small>Clique para substituir</small></label>
-            <label class="upload-card"><span>Foto técnica 2</span><input type="file" accept="image/*" data-image="gallery2"><small>Clique para substituir</small></label>
-            <label class="upload-card"><span>Foto técnica 3</span><input type="file" accept="image/*" data-image="gallery3"><small>Clique para substituir</small></label>
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto principal</span><input type="file" accept="image/*" data-image="heroImage"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="heroImage" hidden>Remover foto principal</button>
+            </div>
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto técnica 1</span><input type="file" accept="image/*" data-image="gallery1"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="gallery1" hidden>Remover foto técnica 1</button>
+            </div>
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto técnica 2</span><input type="file" accept="image/*" data-image="gallery2"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="gallery2" hidden>Remover foto técnica 2</button>
+            </div>
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto técnica 3</span><input type="file" accept="image/*" data-image="gallery3"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="gallery3" hidden>Remover foto técnica 3</button>
+            </div>
           </div>
         </div>
       </section>
@@ -111,5 +124,47 @@
 
   <div class="toast no-print" id="toast"></div>
   <script src="app.js?v=28"></script>
+  <script>
+    (() => {
+      const removeButtons = [...document.querySelectorAll('[data-remove-image]')];
+
+      function refreshPhotoButtons() {
+        removeButtons.forEach(button => {
+          button.hidden = !state.images[button.dataset.removeImage];
+        });
+      }
+
+      removeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const imageId = button.dataset.removeImage;
+          if (!state.images[imageId]) return;
+          delete state.images[imageId];
+          const input = document.querySelector(`input[data-image="${imageId}"]`);
+          if (input) input.value = '';
+          renderPreview();
+          autosave();
+          refreshPhotoButtons();
+          toast('Foto removida.');
+        });
+      });
+
+      document.querySelectorAll('input[type=file][data-image]').forEach(input => {
+        input.addEventListener('change', () => setTimeout(refreshPhotoButtons, 80));
+      });
+
+      const originalApply = apply;
+      apply = function(data) {
+        originalApply(data);
+        refreshPhotoButtons();
+      };
+
+      const originalReset = reset;
+      reset = function() {
+        originalReset();
+      };
+
+      refreshPhotoButtons();
+    })();
+  </script>
 </body>
 </html>
