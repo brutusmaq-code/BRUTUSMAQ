@@ -1,0 +1,131 @@
+/* Ajustes de estabilidade do PDF e controles de fotos */
+.upload-slot{
+  display:grid;
+  gap:6px;
+  min-width:0;
+}
+
+.remove-photo-btn{
+  width:100%;
+  border:1px solid #a83a31;
+  border-radius:7px;
+  background:#fff;
+  color:#8e2821;
+  padding:7px 10px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.remove-photo-btn:hover{
+  background:#8e2821;
+  color:#fff;
+}
+
+.remove-photo-btn[hidden]{
+  display:none!important;
+}
+
+/* Mantém a máquina inteira visível nas fotos técnicas. */
+.gallery .image-frame{
+  background:#efefed;
+}
+
+.gallery .image-frame img{
+  object-fit:contain;
+  object-position:center;
+}
+
+/* A página 2 era maior que o A4 por causa do espaço de 65 mm após as fotos. */
+.doc-page:nth-child(2) .doc-body{
+  padding:8mm 13mm 10mm;
+}
+
+.doc-page:nth-child(2) .gallery{
+  height:70mm;
+  gap:6px;
+  margin-bottom:7mm;
+}
+
+.doc-page:nth-child(2) .gallery-side{
+  gap:6px;
+}
+
+.doc-page:nth-child(2) .image-frame{
+  border-radius:7px;
+}
+
+.doc-page:nth-child(2) .doc-section{
+  margin-top:4mm;
+}
+
+.doc-page:nth-child(2) .gallery + .doc-section{
+  margin-top:0;
+}
+
+.doc-page:nth-child(2) .doc-section h2{
+  margin-bottom:4px;
+  font-size:13px;
+}
+
+.doc-page:nth-child(2) .doc-text{
+  font-size:9px;
+  line-height:1.4;
+}
+
+.doc-page:nth-child(2) .specs{
+  gap:5px;
+}
+
+.doc-page:nth-child(2) .spec{
+  padding:6px 7px;
+}
+
+.doc-page:nth-child(2) .spec span{
+  font-size:6.5px;
+}
+
+.doc-page:nth-child(2) .spec strong{
+  margin-top:3px;
+  font-size:8.5px;
+}
+
+.doc-page:nth-child(2) .items-table{
+  margin-top:3px;
+  font-size:7px;
+}
+
+.doc-page:nth-child(2) .items-table th,
+.doc-page:nth-child(2) .items-table td{
+  padding:4px;
+}
+
+.doc-page:nth-child(2) .differentials{
+  margin-top:6px;
+  padding:7px;
+  font-size:7.5px;
+}
+
+@media print{
+  .doc-page{
+    width:210mm!important;
+    height:297mm!important;
+    min-height:297mm!important;
+    max-height:297mm!important;
+    overflow:hidden!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
+
+  .doc-page:nth-child(2) .doc-body{
+    padding:8mm 13mm 10mm!important;
+  }
+
+  .doc-page:nth-child(2) .gallery{
+    height:70mm!important;
+    margin-bottom:7mm!important;
+  }
+
+  .doc-page:nth-child(2) .gallery .image-frame img{
+    object-fit:contain!important;
+  }
+}
