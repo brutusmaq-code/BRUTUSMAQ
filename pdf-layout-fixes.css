@@ -18,7 +18,7 @@
 .page-cover .meta{margin-bottom:9px}
 .page-cover .client-strip{margin-top:-9px;margin-bottom:9px}
 .page-cover .hero{height:82mm}
-.page-cover .proposal-grid{height:36mm;grid-template-columns:minmax(0,1.45fr) minmax(49mm,.55fr);gap:9px;margin-top:8px;align-items:stretch}
+.page-cover .proposal-grid{height:36mm;grid-template-columns:minmax(0,1.45fr) minmax(49mm,.55fr);gap:9px;margin-top:calc(8px + 30mm);align-items:stretch}
 .page-cover .solution-main-card{min-width:0;overflow:hidden;padding:1px 0}
 .page-cover .solution-main-card h2{font-size:13px;margin-bottom:4px}
 .page-cover .solution-main-text{font-size:10px;line-height:1.48;max-height:24mm;overflow:hidden}
