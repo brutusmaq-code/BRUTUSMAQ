@@ -372,7 +372,6 @@ function renderPreview() {
         <div class="commercial">${[['PRAZO DE FABRICAÇÃO / ENTREGA', 'delivery'], ['FORMA DE PAGAMENTO', 'payment'], ['FRETE', 'freightCondition'], ['INSTALAÇÃO / COMISSIONAMENTO', 'installation'], ['GARANTIA', 'warranty'], ['ASSISTÊNCIA TÉCNICA', 'support']].map(([label, id]) => `<div class="commercial-card"><span>${label}</span><p>${esc(val(id))}</p></div>`).join('')}</div>
         <div class="summary-values"><div class="sum-card"><span>SUBTOTAL</span><strong>${money(totals.subtotal)}</strong></div><div class="sum-card"><span>DESCONTO</span><strong>${money(totals.discount)}</strong></div><div class="sum-card"><span>FRETE</span><strong>${money(totals.freight)}</strong></div><div class="sum-card final"><span>TOTAL FINAL</span><strong>${money(totals.total)}</strong></div></div>
         <div class="doc-section"><h2>OBSERVAÇÕES COMERCIAIS</h2><div class="doc-text">${esc(val('notes'))}</div></div>
-        <div class="approval"><div class="doc-section"><h2>APROVAÇÃO DO CLIENTE</h2></div><div class="approval-grid"><div class="signature">NOME / EMPRESA</div><div class="signature">CNPJ / CPF</div><div class="signature">DATA</div><div class="signature">ASSINATURA / ACEITE</div></div></div>
       </div>
       ${footer(commercialPage, totalPages)}
     </section>`;
