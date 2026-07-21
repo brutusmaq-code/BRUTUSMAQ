@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=26">
-  <link rel="stylesheet" href="pdf-layout-fixes.css?v=1">
+  <link rel="stylesheet" href="pdf-layout-fixes.css?v=3">
 </head>
 <body>
   <header class="appbar no-print">
@@ -117,13 +117,13 @@
     </aside>
 
     <section class="preview-area" id="previewArea">
-      <div class="preview-toolbar no-print"><span>Pré-visualização do documento</span><em>Formato A4 • 3 páginas</em></div>
+      <div class="preview-toolbar no-print"><span>Pré-visualização do documento</span><em id="previewPageCount">Formato A4 • 3 páginas</em></div>
       <div id="documentPreview"></div>
     </section>
   </main>
 
   <div class="toast no-print" id="toast"></div>
-  <script src="app.js?v=28"></script>
+  <script src="app.js?v=30"></script>
   <script>
     (() => {
       const removeButtons = [...document.querySelectorAll('[data-remove-image]')];
@@ -156,11 +156,6 @@
       apply = function(data) {
         originalApply(data);
         refreshPhotoButtons();
-      };
-
-      const originalReset = reset;
-      reset = function() {
-        originalReset();
       };
 
       refreshPhotoButtons();

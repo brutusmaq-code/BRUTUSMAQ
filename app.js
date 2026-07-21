@@ -191,12 +191,90 @@ function imageHTML(id, className = '') {
   return `<div class="image-frame ${className} ${source ? '' : 'empty'}">${source ? `<img src="${source}" alt="Foto do equipamento">` : ''}</div>`;
 }
 
-function footer(pageNumber) {
-  return `<footer class="doc-footer"><strong>BRUTUSMAQ INDÚSTRIA E COMÉRCIO DE MÁQUINAS LTDA.</strong><span>CNPJ 36.094.320/0001-03 | Contenda/PR</span><span>Página ${pageNumber} de 3</span></footer>`;
+function mmToPx(value) {
+  const ruler = document.createElement('div');
+  ruler.style.cssText = `position:fixed;left:-10000px;top:-10000px;width:${value}mm;height:1px;visibility:hidden;`;
+  document.body.appendChild(ruler);
+  const pixels = ruler.getBoundingClientRect().width;
+  ruler.remove();
+  return pixels || value * 3.7795275591;
+}
+
+function splitTextToFit(value, boxes) {
+  const source = String(value || '').trim();
+  if (!source) return [''];
+
+  const tokens = source.match(/\S+\s*/g) || [source];
+  const chunks = [];
+  let cursor = 0;
+  let boxIndex = 0;
+
+  const measure = document.createElement('div');
+  measure.className = 'doc-text pdf-text-measure';
+  measure.style.cssText = 'position:fixed;left:-10000px;top:-10000px;visibility:hidden;white-space:pre-line;overflow-wrap:anywhere;';
+  document.body.appendChild(measure);
+
+  while (cursor < tokens.length) {
+    const box = boxes[Math.min(boxIndex, boxes.length - 1)];
+    measure.style.width = `${mmToPx(box.widthMm)}px`;
+    measure.style.fontSize = `${box.fontPx || 10}px`;
+    measure.style.lineHeight = String(box.lineHeight || 1.55);
+    const maxHeight = mmToPx(box.heightMm);
+
+    let low = cursor + 1;
+    let high = tokens.length;
+    let best = cursor + 1;
+
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      measure.textContent = tokens.slice(cursor, middle).join('');
+      if (measure.scrollHeight <= maxHeight + 1) {
+        best = middle;
+        low = middle + 1;
+      } else {
+        high = middle - 1;
+      }
+    }
+
+    if (best <= cursor) best = cursor + 1;
+    chunks.push(tokens.slice(cursor, best).join('').trim());
+    cursor = best;
+    boxIndex += 1;
+  }
+
+  measure.remove();
+  return chunks;
 }
 
 function header(title, subtitle) {
-  return `<header class="doc-header"><div class="doc-brand"><img src="assets/logo-b.png" alt="B"><div><div class="doc-brand-name">BRUTUSMAQ</div><div class="doc-brand-tag">FORÇA QUE TRANSFORMA</div></div></div><div class="doc-title"><h1>${title}</h1><p>${subtitle}</p></div></header>`;
+  return `<header class="doc-header"><div class="doc-brand"><img src="assets/logo-b.png" alt="B"><div><div class="doc-brand-name">BRUTUSMAQ</div><div class="doc-brand-tag">FORÇA QUE TRANSFORMA</div></div></div><div class="doc-title"><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div></header>`;
+}
+
+function footer(pageNumber, totalPages) {
+  return `<footer class="doc-footer"><strong>BRUTUSMAQ INDÚSTRIA E COMÉRCIO DE MÁQUINAS LTDA.</strong><span>CNPJ 36.094.320/0001-03 | Contenda/PR</span><span>Página ${pageNumber} de ${totalPages}</span></footer>`;
+}
+
+function solutionContinuationPage(text, pageNumber, totalPages, totals, continuationIndex) {
+  return `
+    <section class="doc-page page-solution-continuation">
+      ${header('CONTINUAÇÃO DA SOLUÇÃO PROPOSTA', `Detalhamento técnico • Parte ${continuationIndex}`)}
+      <div class="doc-body">
+        <div class="continuation-identification">
+          <div><span>EQUIPAMENTO</span><strong>${esc(val('machineName') || 'EQUIPAMENTO INDUSTRIAL')}</strong></div>
+          <div><span>CLIENTE</span><strong>${esc(val('clientName') || 'Não informado')}</strong></div>
+          <div><span>ORÇAMENTO</span><strong>${esc(val('quoteNumber'))}</strong></div>
+        </div>
+        <div class="doc-section continuation-solution">
+          <h2>SOLUÇÃO PROPOSTA — CONTINUAÇÃO</h2>
+          <div class="doc-text">${esc(text)}</div>
+        </div>
+        <div class="continuation-total">
+          <span>INVESTIMENTO TOTAL DA PROPOSTA</span>
+          <strong>${money(totals.total)}</strong>
+        </div>
+      </div>
+      ${footer(pageNumber, totalPages)}
+    </section>`;
 }
 
 function renderPreview() {
@@ -208,10 +286,87 @@ function renderPreview() {
     ? state.items.map((item, index) => `<tr><td>${esc(item.code || String(index + 1).padStart(2, '0'))}</td><td>${esc(item.description)}</td><td class="right">${item.qty}</td><td class="right">${money(item.unit)}</td><td class="right"><b>${money(item.qty * item.unit)}</b></td></tr>`).join('')
     : '<tr><td colspan="5">Nenhum item adicionado.</td></tr>';
 
+  const solutionChunks = splitTextToFit(val('solution'), [
+    { widthMm: 96, heightMm: 24, fontPx: 10, lineHeight: 1.48 },
+    { widthMm: 168, heightMm: 174, fontPx: 10, lineHeight: 1.58 }
+  ]);
+  const firstSolution = solutionChunks[0] || '';
+  const continuationChunks = solutionChunks.slice(1);
+  const totalPages = 3 + continuationChunks.length;
+  const equipmentPage = 2 + continuationChunks.length;
+  const commercialPage = 3 + continuationChunks.length;
+
+  const pageCount = $('#previewPageCount');
+  if (pageCount) pageCount.textContent = `Formato A4 • ${totalPages} ${totalPages === 1 ? 'página' : 'páginas'}`;
+
+  const continuationHtml = continuationChunks.map((text, index) => solutionContinuationPage(
+    text,
+    index + 2,
+    totalPages,
+    totals,
+    index + 1
+  )).join('');
+
   preview.innerHTML = `
-    <section class="doc-page">${header('ORÇAMENTO COMERCIAL', 'Proposta profissional de equipamento industrial')}<div class="doc-body"><div class="eyebrow">PROPOSTA COMERCIAL</div><div class="machine-name">${esc(val('machineName') || 'EQUIPAMENTO INDUSTRIAL')}</div><div class="meta"><div class="meta-cell"><span>ORÇAMENTO Nº</span><strong>${esc(val('quoteNumber'))}</strong></div><div class="meta-cell"><span>DATA</span><strong>${formatDate(val('quoteDate'))}</strong></div><div class="meta-cell"><span>VALIDADE</span><strong>${esc(val('validity'))}</strong></div><div class="meta-cell"><span>RESPONSÁVEL</span><strong>${esc(val('responsible'))}</strong></div></div><div class="client-strip"><div><span>CLIENTE / EMPRESA</span><strong>${esc(val('clientName'))}</strong></div><div><span>CNPJ / CPF</span><strong>${esc(val('clientDoc'))}</strong></div><div><span>CONTATO</span><strong>${esc(val('clientPhone'))}</strong></div></div>${imageHTML('heroImage', 'hero')}<div class="proposal-grid"><div class="doc-section"><h2>SOLUÇÃO PROPOSTA</h2><div class="doc-text">${esc(val('solution'))}</div></div><aside class="investment"><span>INVESTIMENTO TOTAL</span><strong>${money(totals.total)}</strong><small>Condições comerciais detalhadas na página 3.</small></aside></div><div class="scope"><span>ESCOPO RESUMIDO</span><div class="doc-text">${esc(val('scopeSummary'))}</div></div></div>${footer(1)}</section>
-    <section class="doc-page">${header('EQUIPAMENTO OFERTADO', 'Fotos, aplicação e especificações principais')}<div class="doc-body"><div class="gallery">${imageHTML('gallery1')}<div class="gallery-side">${imageHTML('gallery2')}${imageHTML('gallery3')}</div></div><div class="doc-section"><h2>APLICAÇÃO</h2><div class="doc-text">${esc(val('application'))}</div></div><div class="doc-section"><h2>ESPECIFICAÇÕES PRINCIPAIS</h2><div class="specs">${[['MODELO', 'model'], ['POTÊNCIA', 'power'], ['ÁREA DE TRABALHO', 'workArea'], ['PRODUÇÃO', 'production'], ['ALIMENTAÇÃO', 'voltage'], ['MATERIAL PRINCIPAL', 'material']].map(([label, id]) => `<div class="spec"><span>${label}</span><strong>${esc(val(id))}</strong></div>`).join('')}</div></div><div class="doc-section"><h2>ITENS INCLUSOS</h2><table class="items-table"><thead><tr><th>ITEM</th><th>DESCRIÇÃO</th><th class="right">QTD.</th><th class="right">VALOR UNIT.</th><th class="right">TOTAL</th></tr></thead><tbody>${rows}</tbody></table></div><div class="differentials"><b>DIFERENCIAIS</b> &nbsp; ✓ Construção robusta &nbsp; ✓ Manutenção simplificada &nbsp; ✓ Assistência técnica BRUTUSMAQ</div></div>${footer(2)}</section>
-    <section class="doc-page">${header('CONDIÇÕES COMERCIAIS', 'Informações finais para fechamento da proposta')}<div class="doc-body"><div class="total-banner"><span>VALOR TOTAL DA PROPOSTA</span><strong>${money(totals.total)}</strong></div><div class="commercial">${[['PRAZO DE FABRICAÇÃO / ENTREGA', 'delivery'], ['FORMA DE PAGAMENTO', 'payment'], ['FRETE', 'freightCondition'], ['INSTALAÇÃO / COMISSIONAMENTO', 'installation'], ['GARANTIA', 'warranty'], ['ASSISTÊNCIA TÉCNICA', 'support']].map(([label, id]) => `<div class="commercial-card"><span>${label}</span><p>${esc(val(id))}</p></div>`).join('')}</div><div class="summary-values"><div class="sum-card"><span>SUBTOTAL</span><strong>${money(totals.subtotal)}</strong></div><div class="sum-card"><span>DESCONTO</span><strong>${money(totals.discount)}</strong></div><div class="sum-card"><span>FRETE</span><strong>${money(totals.freight)}</strong></div><div class="sum-card final"><span>TOTAL FINAL</span><strong>${money(totals.total)}</strong></div></div><div class="doc-section"><h2>OBSERVAÇÕES COMERCIAIS</h2><div class="doc-text">${esc(val('notes'))}</div></div><div class="approval"><div class="doc-section"><h2>APROVAÇÃO DO CLIENTE</h2></div><div class="approval-grid"><div class="signature">NOME / EMPRESA</div><div class="signature">CNPJ / CPF</div><div class="signature">DATA</div><div class="signature">ASSINATURA / ACEITE</div></div></div></div>${footer(3)}</section>`;
+    <section class="doc-page page-cover">
+      ${header('ORÇAMENTO COMERCIAL', 'Proposta profissional de equipamento industrial')}
+      <div class="doc-body">
+        <div class="eyebrow">PROPOSTA COMERCIAL</div>
+        <div class="machine-name">${esc(val('machineName') || 'EQUIPAMENTO INDUSTRIAL')}</div>
+        <div class="meta">
+          <div class="meta-cell"><span>ORÇAMENTO Nº</span><strong>${esc(val('quoteNumber'))}</strong></div>
+          <div class="meta-cell"><span>DATA</span><strong>${formatDate(val('quoteDate'))}</strong></div>
+          <div class="meta-cell"><span>VALIDADE</span><strong>${esc(val('validity'))}</strong></div>
+          <div class="meta-cell"><span>RESPONSÁVEL</span><strong>${esc(val('responsible'))}</strong></div>
+        </div>
+        <div class="client-strip">
+          <div><span>CLIENTE / EMPRESA</span><strong>${esc(val('clientName'))}</strong></div>
+          <div><span>CNPJ / CPF</span><strong>${esc(val('clientDoc'))}</strong></div>
+          <div><span>CONTATO</span><strong>${esc(val('clientPhone'))}</strong></div>
+        </div>
+        ${imageHTML('heroImage', 'hero')}
+        <div class="proposal-grid">
+          <div class="doc-section solution-main-card">
+            <h2>SOLUÇÃO PROPOSTA</h2>
+            <div class="doc-text solution-main-text">${esc(firstSolution)}</div>
+            ${continuationChunks.length ? `<div class="solution-continues">Continua na página 2.</div>` : ''}
+          </div>
+          <aside class="investment">
+            <span>INVESTIMENTO TOTAL</span>
+            <strong>${money(totals.total)}</strong>
+            <small>Condições comerciais detalhadas na página ${commercialPage}.</small>
+          </aside>
+        </div>
+        <div class="scope"><span>ESCOPO RESUMIDO</span><div class="doc-text">${esc(val('scopeSummary'))}</div></div>
+      </div>
+      ${footer(1, totalPages)}
+    </section>
+
+    ${continuationHtml}
+
+    <section class="doc-page page-equipment">
+      ${header('EQUIPAMENTO OFERTADO', 'Fotos, aplicação e especificações principais')}
+      <div class="doc-body">
+        <div class="gallery">${imageHTML('gallery1')}<div class="gallery-side">${imageHTML('gallery2')}${imageHTML('gallery3')}</div></div>
+        <div class="doc-section"><h2>APLICAÇÃO</h2><div class="doc-text">${esc(val('application'))}</div></div>
+        <div class="doc-section"><h2>ESPECIFICAÇÕES PRINCIPAIS</h2><div class="specs">${[['MODELO', 'model'], ['POTÊNCIA', 'power'], ['ÁREA DE TRABALHO', 'workArea'], ['PRODUÇÃO', 'production'], ['ALIMENTAÇÃO', 'voltage'], ['MATERIAL PRINCIPAL', 'material']].map(([label, id]) => `<div class="spec"><span>${label}</span><strong>${esc(val(id))}</strong></div>`).join('')}</div></div>
+        <div class="doc-section"><h2>ITENS INCLUSOS</h2><table class="items-table"><thead><tr><th>ITEM</th><th>DESCRIÇÃO</th><th class="right">QTD.</th><th class="right">VALOR UNIT.</th><th class="right">TOTAL</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="differentials"><b>DIFERENCIAIS</b> &nbsp; ✓ Construção robusta &nbsp; ✓ Manutenção simplificada &nbsp; ✓ Assistência técnica BRUTUSMAQ</div>
+      </div>
+      ${footer(equipmentPage, totalPages)}
+    </section>
+
+    <section class="doc-page page-commercial">
+      ${header('CONDIÇÕES COMERCIAIS', 'Informações finais para fechamento da proposta')}
+      <div class="doc-body">
+        <div class="total-banner"><span>VALOR TOTAL DA PROPOSTA</span><strong>${money(totals.total)}</strong></div>
+        <div class="commercial">${[['PRAZO DE FABRICAÇÃO / ENTREGA', 'delivery'], ['FORMA DE PAGAMENTO', 'payment'], ['FRETE', 'freightCondition'], ['INSTALAÇÃO / COMISSIONAMENTO', 'installation'], ['GARANTIA', 'warranty'], ['ASSISTÊNCIA TÉCNICA', 'support']].map(([label, id]) => `<div class="commercial-card"><span>${label}</span><p>${esc(val(id))}</p></div>`).join('')}</div>
+        <div class="summary-values"><div class="sum-card"><span>SUBTOTAL</span><strong>${money(totals.subtotal)}</strong></div><div class="sum-card"><span>DESCONTO</span><strong>${money(totals.discount)}</strong></div><div class="sum-card"><span>FRETE</span><strong>${money(totals.freight)}</strong></div><div class="sum-card final"><span>TOTAL FINAL</span><strong>${money(totals.total)}</strong></div></div>
+        <div class="doc-section"><h2>OBSERVAÇÕES COMERCIAIS</h2><div class="doc-text">${esc(val('notes'))}</div></div>
+        <div class="approval"><div class="doc-section"><h2>APROVAÇÃO DO CLIENTE</h2></div><div class="approval-grid"><div class="signature">NOME / EMPRESA</div><div class="signature">CNPJ / CPF</div><div class="signature">DATA</div><div class="signature">ASSINATURA / ACEITE</div></div></div>
+      </div>
+      ${footer(commercialPage, totalPages)}
+    </section>`;
 }
 
 function formatDate(value) {
@@ -372,7 +527,7 @@ $('#newBtn').onclick = reset;
 $('#exportBtn').onclick = exportData;
 $('#pdfBtn').onclick = () => {
   renderPreview();
-  window.print();
+  requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
 };
 
 $('#importInput').onchange = () => {
