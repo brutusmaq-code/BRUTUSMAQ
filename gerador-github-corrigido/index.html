@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <title>Gerador de Orçamento | BRUTUSMAQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="pdf-layout-fixes.css?v=3">
+</head>
+<body>
+  <header class="appbar no-print">
+    <div class="appbrand">
+      <img src="assets/logo-b.png" alt="Símbolo BRUTUSMAQ">
+      <div><strong>BRUTUSMAQ</strong><span>Gerador de orçamento profissional</span></div>
+    </div>
+    <nav class="view-tabs" aria-label="Visualização">
+      <button class="active" data-view="split">Editor + prévia</button>
+      <button data-view="editor">Somente editor</button>
+      <button data-view="preview">Somente prévia</button>
+    </nav>
+    <div class="app-actions">
+      <button class="btn secondary" id="newBtn">Novo</button>
+      <button class="btn secondary" id="saveBtn">Salvar</button>
+      <button class="btn secondary" id="exportBtn">Exportar dados</button>
+      <label class="btn secondary file-btn">Importar dados<input id="importInput" type="file" accept="application/json" hidden></label>
+      <button class="btn primary" id="pdfBtn">Gerar PDF</button>
+    </div>
+  </header>
+
+  <main class="workspace split" id="workspace">
+    <aside class="editor no-print" id="editor">
+      <section class="editor-section open">
+        <button class="section-toggle"><span>1. Dados da proposta</span><b>−</b></button>
+        <div class="section-content two-columns">
+          <label>Número do orçamento<input id="quoteNumber" value="0001"></label>
+          <label>Data<input id="quoteDate" type="date"></label>
+          <label>Validade<input id="validity" value="15 dias"></label>
+          <label>Responsável<input id="responsible" value="Alisson Madeira"></label>
+          <label class="wide">Cliente / empresa<input id="clientName" placeholder="Nome do cliente ou empresa"></label>
+          <label>CNPJ / CPF<input id="clientDoc" placeholder="Documento"></label>
+          <label>Telefone<input id="clientPhone" placeholder="(00) 00000-0000"></label>
+          <label class="wide">E-mail<input id="clientEmail" type="email" placeholder="cliente@empresa.com.br"></label>
+        </div>
+      </section>
+
+      <section class="editor-section open">
+        <button class="section-toggle"><span>2. Equipamento e solução</span><b>−</b></button>
+        <div class="section-content">
+          <label>Nome da máquina<input id="machineName" value="TRITURADOR INDUSTRIAL"></label>
+          <label>Aplicação<textarea id="application" rows="4" placeholder="Descreva a aplicação do equipamento"></textarea></label>
+          <label>Solução proposta<textarea id="solution" rows="5">Equipamento industrial desenvolvido conforme a aplicação do cliente, com projeto robusto, fabricação nacional e suporte técnico BRUTUSMAQ.</textarea></label>
+          <label>Escopo resumido<textarea id="scopeSummary" rows="3" placeholder="Equipamento principal e acessórios inclusos"></textarea></label>
+          <div class="upload-grid">
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto principal</span><input type="file" accept="image/*" data-image="heroImage"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="heroImage" hidden>Remover foto principal</button>
+            </div>
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto técnica 1</span><input type="file" accept="image/*" data-image="gallery1"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="gallery1" hidden>Remover foto técnica 1</button>
+            </div>
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto técnica 2</span><input type="file" accept="image/*" data-image="gallery2"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="gallery2" hidden>Remover foto técnica 2</button>
+            </div>
+            <div class="upload-slot">
+              <label class="upload-card"><span>Foto técnica 3</span><input type="file" accept="image/*" data-image="gallery3"><small>Clique para substituir</small></label>
+              <button type="button" class="remove-photo-btn" data-remove-image="gallery3" hidden>Remover foto técnica 3</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="editor-section open">
+        <button class="section-toggle"><span>3. Especificações</span><b>−</b></button>
+        <div class="section-content two-columns">
+          <label>Modelo<input id="model" placeholder="Ex.: BM-T800"></label>
+          <label>Potência<input id="power" placeholder="Ex.: 30 cv"></label>
+          <label>Área de trabalho<input id="workArea" placeholder="Dimensões"></label>
+          <label>Produção<input id="production" placeholder="kg/h ou m³/h"></label>
+          <label>Alimentação<input id="voltage" placeholder="220/380 V trifásico"></label>
+          <label>Material principal<input id="material" placeholder="Aço carbono"></label>
+        </div>
+      </section>
+
+      <section class="editor-section open">
+        <button class="section-toggle"><span>4. Itens e valores</span><b>−</b></button>
+        <div class="section-content">
+          <div class="section-actions"><button class="btn primary small" id="addItemBtn">+ Adicionar item</button></div>
+          <div id="itemEditor" class="item-editor"></div>
+          <div class="value-fields two-columns">
+            <label>Desconto (R$)<input id="discount" type="number" min="0" step="0.01" value="0"></label>
+            <label>Frete (R$)<input id="freightValue" type="number" min="0" step="0.01" value="0"></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="editor-section open">
+        <button class="section-toggle"><span>5. Condições comerciais</span><b>−</b></button>
+        <div class="section-content two-columns">
+          <label>Prazo de fabricação / entrega<textarea id="delivery" rows="3">A combinar conforme aprovação do projeto.</textarea></label>
+          <label>Forma de pagamento<textarea id="payment" rows="3">A combinar.</textarea></label>
+          <label>Condição de frete<textarea id="freightCondition" rows="3">Por conta do cliente, salvo negociação em contrário.</textarea></label>
+          <label>Instalação / comissionamento<textarea id="installation" rows="3">Instalação simplificada e orientação operacional online inclusa.</textarea></label>
+          <label>Garantia<textarea id="warranty" rows="3">12 meses contra defeitos de fabricação, conforme manual e condições de uso.</textarea></label>
+          <label>Assistência técnica<textarea id="support" rows="3">Suporte técnico nacional por telefone, WhatsApp e videochamada.</textarea></label>
+          <label class="wide">Observações comerciais<textarea id="notes" rows="7">• Produção e desempenho variam conforme material, alimentação e condições de operação.
+• Frete, instalação, bases civis e adequações elétricas serão considerados conforme o escopo.
+• Imagens são ilustrativas e podem ser substituídas pelas fotos do equipamento ofertado.
+• Alterações de escopo podem gerar revisão de preço e prazo.</textarea></label>
+        </div>
+      </section>
+    </aside>
+
+    <section class="preview-area" id="previewArea">
+      <div class="preview-toolbar no-print"><span>Pré-visualização do documento</span><em id="previewPageCount">Formato A4 • 3 páginas</em></div>
+      <div id="documentPreview"></div>
+    </section>
+  </main>
+
+  <div class="toast no-print" id="toast"></div>
+  <script src="app.js?v=30"></script>
+  <script>
+    (() => {
+      const removeButtons = [...document.querySelectorAll('[data-remove-image]')];
+
+      function refreshPhotoButtons() {
+        removeButtons.forEach(button => {
+          button.hidden = !state.images[button.dataset.removeImage];
+        });
+      }
+
+      removeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const imageId = button.dataset.removeImage;
+          if (!state.images[imageId]) return;
+          delete state.images[imageId];
+          const input = document.querySelector(`input[data-image="${imageId}"]`);
+          if (input) input.value = '';
+          renderPreview();
+          autosave();
+          refreshPhotoButtons();
+          toast('Foto removida.');
+        });
+      });
+
+      document.querySelectorAll('input[type=file][data-image]').forEach(input => {
+        input.addEventListener('change', () => setTimeout(refreshPhotoButtons, 80));
+      });
+
+      const originalApply = apply;
+      apply = function(data) {
+        originalApply(data);
+        refreshPhotoButtons();
+      };
+
+      refreshPhotoButtons();
+    })();
+  </script>
+</body>
+</html>

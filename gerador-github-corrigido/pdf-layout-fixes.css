@@ -1,0 +1,80 @@
+/* Correção de paginação do PDF e controles de fotos */
+.upload-slot{display:grid;gap:6px;min-width:0}
+.remove-photo-btn{width:100%;border:1px solid #a83a31;border-radius:7px;background:#fff;color:#8e2821;padding:7px 10px;font-size:11px;font-weight:800}
+.remove-photo-btn:hover{background:#8e2821;color:#fff}
+.remove-photo-btn[hidden]{display:none!important}
+
+.gallery .image-frame{background:#efefed}
+.gallery .image-frame img{object-fit:contain;object-position:center}
+
+/* Todas as folhas permanecem exatamente no formato A4. */
+.doc-page{height:297mm;min-height:297mm;max-height:297mm;overflow:hidden}
+.doc-page .doc-body{min-height:0;overflow:hidden}
+
+/* Capa: a solução tem uma área fixa. O excedente vai para folhas de continuação. */
+.page-cover .doc-body{padding:7mm 13mm 9mm}
+.page-cover .eyebrow{font-size:20px;padding-bottom:4px}
+.page-cover .machine-name{font-size:18px;margin:6px 0 8px}
+.page-cover .meta{margin-bottom:9px}
+.page-cover .client-strip{margin-top:-9px;margin-bottom:9px}
+.page-cover .hero{height:82mm}
+.page-cover .proposal-grid{height:36mm;grid-template-columns:minmax(0,1.45fr) minmax(49mm,.55fr);gap:9px;margin-top:8px;align-items:stretch}
+.page-cover .solution-main-card{min-width:0;overflow:hidden;padding:1px 0}
+.page-cover .solution-main-card h2{font-size:13px;margin-bottom:4px}
+.page-cover .solution-main-text{font-size:10px;line-height:1.48;max-height:24mm;overflow:hidden}
+.page-cover .solution-continues{margin-top:3px;color:#a65200;font-size:7.5px;font-weight:900;text-transform:uppercase}
+.page-cover .investment{height:36mm;min-height:36mm;max-height:36mm;padding:11px 12px;align-self:start;overflow:hidden}
+.page-cover .investment strong{font-size:21px;margin:5px 0}
+.page-cover .scope{min-height:15mm;max-height:21mm;overflow:hidden;padding:8px 10px;margin-top:8px}
+.page-cover .scope .doc-text{font-size:8.5px;line-height:1.35;max-height:14mm;overflow:hidden}
+
+/* Folhas automáticas para textos longos da solução. */
+.page-solution-continuation .doc-body{padding:10mm 15mm 12mm;display:flex;flex-direction:column;gap:8mm}
+.continuation-identification{display:grid;grid-template-columns:2fr 1.4fr .7fr;border:1px solid #d1d1ce;border-radius:8px;overflow:hidden}
+.continuation-identification>div{padding:8px 10px;border-right:1px solid #d1d1ce;min-width:0}
+.continuation-identification>div:last-child{border-right:0}
+.continuation-identification span{display:block;color:#6a6a65;font-size:7px;font-weight:900}
+.continuation-identification strong{display:block;margin-top:4px;font-size:9px;overflow-wrap:anywhere}
+.continuation-solution{flex:1;min-height:0;padding:8mm;border:1px solid #dededb;border-left:5px solid var(--orange);border-radius:9px;background:#fafaf9;overflow:hidden}
+.continuation-solution h2{font-size:15px;margin-bottom:8px}
+.continuation-solution .doc-text{font-size:10px;line-height:1.58;white-space:pre-line;overflow-wrap:anywhere}
+.continuation-total{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;background:var(--black);color:#fff;border-radius:9px;padding:10px 14px}
+.continuation-total span{font-size:8px;font-weight:900}
+.continuation-total strong{font-size:18px;color:var(--orange)}
+
+/* Página do equipamento: usa classe própria, mesmo quando existem páginas extras. */
+.page-equipment .doc-body{padding:8mm 13mm 10mm}
+.page-equipment .gallery{height:70mm;gap:6px;margin-bottom:7mm}
+.page-equipment .gallery-side{gap:6px}
+.page-equipment .image-frame{border-radius:7px}
+.page-equipment .doc-section{margin-top:4mm}
+.page-equipment .gallery + .doc-section{margin-top:0}
+.page-equipment .doc-section h2{margin-bottom:4px;font-size:13px}
+.page-equipment .doc-text{font-size:9px;line-height:1.4}
+.page-equipment .specs{gap:5px}
+.page-equipment .spec{padding:6px 7px}
+.page-equipment .spec span{font-size:6.5px}
+.page-equipment .spec strong{margin-top:3px;font-size:8.5px}
+.page-equipment .items-table{margin-top:3px;font-size:7px}
+.page-equipment .items-table th,.page-equipment .items-table td{padding:4px}
+.page-equipment .differentials{margin-top:6px;padding:7px;font-size:7.5px}
+
+/* Página comercial: o preço fica sempre dentro da folha. */
+.page-commercial .doc-body{padding:9mm 14mm 11mm}
+.page-commercial .total-banner{min-height:19mm;flex:0 0 auto}
+.page-commercial .commercial{gap:6px;margin-top:9px}
+.page-commercial .commercial-card{padding:8px}
+.page-commercial .summary-values{margin:9px 0}
+.page-commercial .approval{margin-top:8px}
+
+.pdf-text-measure{font-family:Inter,Arial,sans-serif;box-sizing:border-box}
+
+@media print{
+  .doc-page{width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;overflow:hidden!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  .page-cover .hero{height:82mm!important}
+  .page-cover .proposal-grid{height:36mm!important}
+  .page-cover .investment{height:36mm!important;min-height:36mm!important;max-height:36mm!important}
+  .page-equipment .doc-body{padding:8mm 13mm 10mm!important}
+  .page-equipment .gallery{height:70mm!important;margin-bottom:7mm!important}
+  .page-equipment .gallery .image-frame img{object-fit:contain!important}
+}

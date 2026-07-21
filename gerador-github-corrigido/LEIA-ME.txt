@@ -1,0 +1,9 @@
+GERADOR DE PDF BRUTUSMAQ — CORREÇÃO PARA GITHUB PAGES
+
+Substitua estes 3 arquivos na raiz do repositório BRUTUSMAQ:
+- index.html
+- app.js
+- pdf-layout-fixes.css
+
+Não mexa em styles.css nem na pasta assets.
+Após o upload, aguarde o GitHub Pages atualizar e recarregue com Ctrl+F5.
