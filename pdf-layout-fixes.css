@@ -67,6 +67,29 @@
 .page-commercial .summary-values{margin:9px 0}
 .page-commercial .approval{margin-top:8px}
 
+/* Quando houver espaço, as condições comerciais fecham a página do equipamento. */
+.page-equipment.with-commercial .commercial-inline{margin-top:4mm;padding-top:3mm;border-top:3px solid var(--orange)}
+.inline-commercial-title{display:flex;align-items:baseline;gap:7px;margin-bottom:4px}
+.inline-commercial-title h2{margin:0;font-size:12px;line-height:1;font-weight:900}
+.inline-commercial-title span{color:#777;font-size:6.5px;font-weight:700}
+.commercial-inline .total-banner{min-height:13mm;border-radius:7px;padding:7px 10px}
+.commercial-inline .total-banner span{font-size:7px}
+.commercial-inline .total-banner strong{font-size:17px}
+.commercial-inline .commercial{gap:4px;margin-top:5px}
+.commercial-inline .commercial-card{border-radius:6px;padding:5px 6px}
+.commercial-inline .commercial-card span{font-size:5.5px}
+.commercial-inline .commercial-card p{font-size:7px;line-height:1.25;margin:3px 0 0}
+.commercial-inline .summary-values{gap:4px;margin:5px 0}
+.commercial-inline .sum-card{border-radius:6px;padding:5px 6px}
+.commercial-inline .sum-card span{font-size:5.5px}
+.commercial-inline .sum-card strong{font-size:10px;margin-top:3px}
+.page-equipment .commercial-inline .commercial-notes{margin-top:0}
+.page-equipment .commercial-inline .commercial-notes h2{font-size:10px;margin:0 0 3px}
+.commercial-inline .commercial-notes .doc-text{font-size:7px;line-height:1.25}
+
+/* Permite medir a paginação mesmo na visualização "Somente editor". */
+.preview-area.pagination-measure{display:block!important;position:fixed!important;left:-10000px!important;top:0!important;width:210mm!important;padding:0!important;visibility:hidden!important;overflow:visible!important}
+
 .pdf-text-measure{font-family:Inter,Arial,sans-serif;box-sizing:border-box}
 
 @media print{
@@ -78,3 +101,4 @@
   .page-equipment .gallery{height:70mm!important;margin-bottom:7mm!important}
   .page-equipment .gallery .image-frame img{object-fit:contain!important}
 }
+
