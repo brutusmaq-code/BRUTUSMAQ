@@ -104,14 +104,23 @@ function normalizeItem(item = {}, index = 0, fallbackDescription = '') {
 function normalizeImportedItems(items, data = {}) {
   const preferredName = preferredEquipmentName(data);
   const clientName = data.fields?.clientName || '';
-
-  return (Array.isArray(items) ? items : []).map((item, index) => {
+  const importedTotal = Number(data.fields?.finalValue || data.fields?.total || 0);
+  const normalizedItems = (Array.isArray(items) ? items : []).map((item, index) => {
     const normalized = normalizeItem(item, index, preferredName);
     if (isGenericQuoteText(normalized.description, clientName)) {
       normalized.description = preferredName;
     }
     return normalized;
   });
+
+  // Segurança para integrações antigas do CRM: se o valor final chegou no
+  // cabeçalho, mas o item veio zerado, distribui o total no primeiro item.
+  if (importedTotal > 0 && normalizedItems.length && !normalizedItems.some(item => Number(item.unit || 0) > 0)) {
+    const first = normalizedItems[0];
+    first.unit = importedTotal / Math.max(1, Number(first.qty || 1));
+  }
+
+  return normalizedItems;
 }
 
 function addItem(data = {}) {
@@ -409,7 +418,8 @@ function apply(data = {}) {
   state.images = data.images || {};
 
   if (!state.items.length) {
-    state.items = [normalizeItem({ description: preferredName }, 0, preferredName)];
+    const importedTotal = Number(data.fields?.finalValue || data.fields?.total || 0);
+    state.items = [normalizeItem({ description: preferredName, qty: 1, unit: importedTotal }, 0, preferredName)];
   }
 
   renderItems();
