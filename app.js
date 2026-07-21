@@ -286,6 +286,26 @@ function solutionContinuationPage(text, pageNumber, totalPages, totals, continua
     </section>`;
 }
 
+function commercialContentHtml(totals, inline = false) {
+  const conditions = [
+    ['PRAZO DE FABRICAÇÃO / ENTREGA', 'delivery'],
+    ['FORMA DE PAGAMENTO', 'payment'],
+    ['FRETE', 'freightCondition'],
+    ['INSTALAÇÃO / COMISSIONAMENTO', 'installation'],
+    ['GARANTIA', 'warranty'],
+    ['ASSISTÊNCIA TÉCNICA', 'support']
+  ];
+
+  return `
+    <div class="commercial-content ${inline ? 'commercial-inline' : 'commercial-standalone'}">
+      ${inline ? `<div class="inline-commercial-title"><h2>CONDIÇÕES COMERCIAIS</h2><span>Informações finais para fechamento da proposta</span></div>` : ''}
+      <div class="total-banner"><span>VALOR TOTAL DA PROPOSTA</span><strong>${money(totals.total)}</strong></div>
+      <div class="commercial">${conditions.map(([label, id]) => `<div class="commercial-card"><span>${label}</span><p>${esc(val(id))}</p></div>`).join('')}</div>
+      <div class="summary-values"><div class="sum-card"><span>SUBTOTAL</span><strong>${money(totals.subtotal)}</strong></div><div class="sum-card"><span>DESCONTO</span><strong>${money(totals.discount)}</strong></div><div class="sum-card"><span>FRETE</span><strong>${money(totals.freight)}</strong></div><div class="sum-card final"><span>TOTAL FINAL</span><strong>${money(totals.total)}</strong></div></div>
+      <div class="doc-section commercial-notes"><h2>OBSERVAÇÕES COMERCIAIS</h2><div class="doc-text">${esc(val('notes'))}</div></div>
+    </div>`;
+}
+
 function renderPreview() {
   const preview = $('#documentPreview');
   if (!preview) return;
@@ -301,80 +321,97 @@ function renderPreview() {
   ]);
   const firstSolution = solutionChunks[0] || '';
   const continuationChunks = solutionChunks.slice(1);
-  const totalPages = 3 + continuationChunks.length;
   const equipmentPage = 2 + continuationChunks.length;
-  const commercialPage = 3 + continuationChunks.length;
+
+  const renderDocument = mergeCommercial => {
+    const totalPages = continuationChunks.length + (mergeCommercial ? 2 : 3);
+    const commercialPage = mergeCommercial ? equipmentPage : equipmentPage + 1;
+    const continuationHtml = continuationChunks.map((text, index) => solutionContinuationPage(
+      text,
+      index + 2,
+      totalPages,
+      totals,
+      index + 1
+    )).join('');
+
+    preview.innerHTML = `
+      <section class="doc-page page-cover">
+        ${header('ORÇAMENTO COMERCIAL', 'Proposta profissional de equipamento industrial')}
+        <div class="doc-body">
+          <div class="eyebrow">PROPOSTA COMERCIAL</div>
+          <div class="machine-name">${esc(val('machineName') || 'EQUIPAMENTO INDUSTRIAL')}</div>
+          <div class="meta">
+            <div class="meta-cell"><span>ORÇAMENTO Nº</span><strong>${esc(val('quoteNumber'))}</strong></div>
+            <div class="meta-cell"><span>DATA</span><strong>${formatDate(val('quoteDate'))}</strong></div>
+            <div class="meta-cell"><span>VALIDADE</span><strong>${esc(val('validity'))}</strong></div>
+            <div class="meta-cell"><span>RESPONSÁVEL</span><strong>${esc(val('responsible'))}</strong></div>
+          </div>
+          <div class="client-strip">
+            <div><span>CLIENTE / EMPRESA</span><strong>${esc(val('clientName'))}</strong></div>
+            <div><span>CNPJ / CPF</span><strong>${esc(val('clientDoc'))}</strong></div>
+            <div><span>CONTATO</span><strong>${esc(val('clientPhone'))}</strong></div>
+          </div>
+          ${imageHTML('heroImage', 'hero')}
+          <div class="proposal-grid">
+            <div class="doc-section solution-main-card">
+              <h2>SOLUÇÃO PROPOSTA</h2>
+              <div class="doc-text solution-main-text">${esc(firstSolution)}</div>
+              ${continuationChunks.length ? `<div class="solution-continues">Continua na página 2.</div>` : ''}
+            </div>
+            <aside class="investment">
+              <span>INVESTIMENTO TOTAL</span>
+              <strong>${money(totals.total)}</strong>
+              <small>Condições comerciais detalhadas na página ${commercialPage}.</small>
+            </aside>
+          </div>
+          <div class="scope"><span>ESCOPO RESUMIDO</span><div class="doc-text">${esc(val('scopeSummary'))}</div></div>
+        </div>
+        ${footer(1, totalPages)}
+      </section>
+
+      ${continuationHtml}
+
+      <section class="doc-page page-equipment ${mergeCommercial ? 'with-commercial' : ''}">
+        ${header('EQUIPAMENTO OFERTADO', mergeCommercial ? 'Fotos, especificações e condições comerciais' : 'Fotos, aplicação e especificações principais')}
+        <div class="doc-body">
+          <div class="equipment-content">
+            <div class="gallery">${imageHTML('gallery1')}<div class="gallery-side">${imageHTML('gallery2')}${imageHTML('gallery3')}</div></div>
+            <div class="doc-section"><h2>APLICAÇÃO</h2><div class="doc-text">${esc(val('application'))}</div></div>
+            <div class="doc-section"><h2>ESPECIFICAÇÕES PRINCIPAIS</h2><div class="specs">${[['MODELO', 'model'], ['POTÊNCIA', 'power'], ['ÁREA DE TRABALHO', 'workArea'], ['PRODUÇÃO', 'production'], ['ALIMENTAÇÃO', 'voltage'], ['MATERIAL PRINCIPAL', 'material']].map(([label, id]) => `<div class="spec"><span>${label}</span><strong>${esc(val(id))}</strong></div>`).join('')}</div></div>
+            <div class="doc-section"><h2>ITENS INCLUSOS</h2><table class="items-table"><thead><tr><th>ITEM</th><th>DESCRIÇÃO</th><th class="right">QTD.</th><th class="right">VALOR UNIT.</th><th class="right">TOTAL</th></tr></thead><tbody>${rows}</tbody></table></div>
+            <div class="differentials"><b>DIFERENCIAIS</b> &nbsp; ✓ Construção robusta &nbsp; ✓ Manutenção simplificada &nbsp; ✓ Assistência técnica BRUTUSMAQ</div>
+          </div>
+          ${mergeCommercial ? commercialContentHtml(totals, true) : ''}
+        </div>
+        ${footer(equipmentPage, totalPages)}
+      </section>
+
+      ${mergeCommercial ? '' : `
+        <section class="doc-page page-commercial">
+          ${header('CONDIÇÕES COMERCIAIS', 'Informações finais para fechamento da proposta')}
+          <div class="doc-body">${commercialContentHtml(totals)}</div>
+          ${footer(commercialPage, totalPages)}
+        </section>`}`;
+
+    return { totalPages, commercialPage };
+  };
+
+  const previewArea = $('#previewArea');
+  const measuringHiddenPreview = previewArea && getComputedStyle(previewArea).display === 'none';
+  if (measuringHiddenPreview) previewArea.classList.add('pagination-measure');
+
+  let pageData = renderDocument(true);
+  const equipmentBody = $('.page-equipment .doc-body', preview);
+  const canMergeCommercial = Boolean(
+    equipmentBody && equipmentBody.clientHeight > 0 && equipmentBody.scrollHeight <= equipmentBody.clientHeight + 1
+  );
+
+  if (!canMergeCommercial) pageData = renderDocument(false);
+  preview.dataset.commercialLayout = canMergeCommercial ? 'merged' : 'separate';
+  if (measuringHiddenPreview) previewArea.classList.remove('pagination-measure');
 
   const pageCount = $('#previewPageCount');
-  if (pageCount) pageCount.textContent = `Formato A4 • ${totalPages} ${totalPages === 1 ? 'página' : 'páginas'}`;
-
-  const continuationHtml = continuationChunks.map((text, index) => solutionContinuationPage(
-    text,
-    index + 2,
-    totalPages,
-    totals,
-    index + 1
-  )).join('');
-
-  preview.innerHTML = `
-    <section class="doc-page page-cover">
-      ${header('ORÇAMENTO COMERCIAL', 'Proposta profissional de equipamento industrial')}
-      <div class="doc-body">
-        <div class="eyebrow">PROPOSTA COMERCIAL</div>
-        <div class="machine-name">${esc(val('machineName') || 'EQUIPAMENTO INDUSTRIAL')}</div>
-        <div class="meta">
-          <div class="meta-cell"><span>ORÇAMENTO Nº</span><strong>${esc(val('quoteNumber'))}</strong></div>
-          <div class="meta-cell"><span>DATA</span><strong>${formatDate(val('quoteDate'))}</strong></div>
-          <div class="meta-cell"><span>VALIDADE</span><strong>${esc(val('validity'))}</strong></div>
-          <div class="meta-cell"><span>RESPONSÁVEL</span><strong>${esc(val('responsible'))}</strong></div>
-        </div>
-        <div class="client-strip">
-          <div><span>CLIENTE / EMPRESA</span><strong>${esc(val('clientName'))}</strong></div>
-          <div><span>CNPJ / CPF</span><strong>${esc(val('clientDoc'))}</strong></div>
-          <div><span>CONTATO</span><strong>${esc(val('clientPhone'))}</strong></div>
-        </div>
-        ${imageHTML('heroImage', 'hero')}
-        <div class="proposal-grid">
-          <div class="doc-section solution-main-card">
-            <h2>SOLUÇÃO PROPOSTA</h2>
-            <div class="doc-text solution-main-text">${esc(firstSolution)}</div>
-            ${continuationChunks.length ? `<div class="solution-continues">Continua na página 2.</div>` : ''}
-          </div>
-          <aside class="investment">
-            <span>INVESTIMENTO TOTAL</span>
-            <strong>${money(totals.total)}</strong>
-            <small>Condições comerciais detalhadas na página ${commercialPage}.</small>
-          </aside>
-        </div>
-        <div class="scope"><span>ESCOPO RESUMIDO</span><div class="doc-text">${esc(val('scopeSummary'))}</div></div>
-      </div>
-      ${footer(1, totalPages)}
-    </section>
-
-    ${continuationHtml}
-
-    <section class="doc-page page-equipment">
-      ${header('EQUIPAMENTO OFERTADO', 'Fotos, aplicação e especificações principais')}
-      <div class="doc-body">
-        <div class="gallery">${imageHTML('gallery1')}<div class="gallery-side">${imageHTML('gallery2')}${imageHTML('gallery3')}</div></div>
-        <div class="doc-section"><h2>APLICAÇÃO</h2><div class="doc-text">${esc(val('application'))}</div></div>
-        <div class="doc-section"><h2>ESPECIFICAÇÕES PRINCIPAIS</h2><div class="specs">${[['MODELO', 'model'], ['POTÊNCIA', 'power'], ['ÁREA DE TRABALHO', 'workArea'], ['PRODUÇÃO', 'production'], ['ALIMENTAÇÃO', 'voltage'], ['MATERIAL PRINCIPAL', 'material']].map(([label, id]) => `<div class="spec"><span>${label}</span><strong>${esc(val(id))}</strong></div>`).join('')}</div></div>
-        <div class="doc-section"><h2>ITENS INCLUSOS</h2><table class="items-table"><thead><tr><th>ITEM</th><th>DESCRIÇÃO</th><th class="right">QTD.</th><th class="right">VALOR UNIT.</th><th class="right">TOTAL</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="differentials"><b>DIFERENCIAIS</b> &nbsp; ✓ Construção robusta &nbsp; ✓ Manutenção simplificada &nbsp; ✓ Assistência técnica BRUTUSMAQ</div>
-      </div>
-      ${footer(equipmentPage, totalPages)}
-    </section>
-
-    <section class="doc-page page-commercial">
-      ${header('CONDIÇÕES COMERCIAIS', 'Informações finais para fechamento da proposta')}
-      <div class="doc-body">
-        <div class="total-banner"><span>VALOR TOTAL DA PROPOSTA</span><strong>${money(totals.total)}</strong></div>
-        <div class="commercial">${[['PRAZO DE FABRICAÇÃO / ENTREGA', 'delivery'], ['FORMA DE PAGAMENTO', 'payment'], ['FRETE', 'freightCondition'], ['INSTALAÇÃO / COMISSIONAMENTO', 'installation'], ['GARANTIA', 'warranty'], ['ASSISTÊNCIA TÉCNICA', 'support']].map(([label, id]) => `<div class="commercial-card"><span>${label}</span><p>${esc(val(id))}</p></div>`).join('')}</div>
-        <div class="summary-values"><div class="sum-card"><span>SUBTOTAL</span><strong>${money(totals.subtotal)}</strong></div><div class="sum-card"><span>DESCONTO</span><strong>${money(totals.discount)}</strong></div><div class="sum-card"><span>FRETE</span><strong>${money(totals.freight)}</strong></div><div class="sum-card final"><span>TOTAL FINAL</span><strong>${money(totals.total)}</strong></div></div>
-        <div class="doc-section"><h2>OBSERVAÇÕES COMERCIAIS</h2><div class="doc-text">${esc(val('notes'))}</div></div>
-      </div>
-      ${footer(commercialPage, totalPages)}
-    </section>`;
+  if (pageCount) pageCount.textContent = `Formato A4 • ${pageData.totalPages} ${pageData.totalPages === 1 ? 'página' : 'páginas'}`;
 }
 
 function formatDate(value) {
@@ -505,6 +542,7 @@ $$('[data-view]').forEach(button => {
     $$('[data-view]').forEach(row => row.classList.remove('active'));
     button.classList.add('active');
     $('#workspace').className = `workspace ${button.dataset.view}`;
+    renderPreview();
   };
 });
 
@@ -577,3 +615,5 @@ try {
 }
 
 renderPreview();
+document.fonts?.ready.then(() => renderPreview());
+
